@@ -9,7 +9,7 @@ VKFrameS (**V**ideo **K**ey**frames** **S**elector) is a video shot keyframes se
 # Parameters
 1.  The video which keyframes will be selected.
 2.  A file path to the CSV output which describe the selected keyframes.
-3.  (Optional) A CSV file with the shot segmentation of the video.
+3.  (Optional) A CSV file with video shot segmentation.
 
 # Output
 VKFrameS will save it's output into a CSV file (the second provided parameter). In this file, each line corresponds to a selected keyframe. 
@@ -22,7 +22,7 @@ VKFrames will always select at least one keyframe for each non-empty shot.
 If there is not a shot segmentation (the third parameter), all detected keyframes will be presented as **1,N**, where **N** is the frame number.
 
 # Examples
-	## Using a shot.csv file with the 'video.avi' shot' segmentation. 
+## Using a shot.csv file with the 'video.avi' shot' segmentation. 
 		$ ./VKFrameS video.avi output.csv shots.csv
 		$ cat shots.csv
 			1,240
@@ -43,7 +43,7 @@ If there is not a shot segmentation (the third parameter), all detected keyframe
 			6,599
 			6,382
 		
-	## Without the shot segmentation
+## Without the shot segmentation
 		$ ./VKFrameS video.avi output.csv
 		$ cat output.csv
 			1,76
