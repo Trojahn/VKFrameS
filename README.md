@@ -22,7 +22,7 @@ VKFrames will always select at least one keyframe for each non-empty shot.
 If there is not a shot segmentation (the third parameter), all detected keyframes will be presented as **1,N**, where **N** is the frame number.
 
 # Examples
-## Using a shot.csv file with the 'video.avi' shot' segmentation. 
+#### Using a shot.csv file with the 'video.avi' shot' segmentation. 
 		$ ./VKFrameS video.avi output.csv shots.csv
 		$ cat shots.csv
 			1,240
@@ -43,7 +43,7 @@ If there is not a shot segmentation (the third parameter), all detected keyframe
 			6,599
 			6,382
 		
-## Without the shot segmentation
+#### Without the shot segmentation
 		$ ./VKFrameS video.avi output.csv
 		$ cat output.csv
 			1,76
