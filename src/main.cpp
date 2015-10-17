@@ -17,7 +17,7 @@ double SIMILARITY_THRESHOLD = 0.95;
 double MIN_SIMILARITY = 0.2;
 
 int main(int argc, char* argv[]) {
-	if(argc < 3 && argc > 4) {
+	if(argc < 3 || argc > 4) {
 		cout << "Incorrect parameter count." << endl;
 		cout << "Please, use './VKFrames <videoFilePath> <outputFilePath.csv> [<videoShotSegmentation.csv>]'" << endl;
 		return 1;
