@@ -55,7 +55,9 @@ int main(int argc, char* argv[]) {
 		if(!Utils::checkFile(inputCSV)) {
 			cout << "The videoShotSegmentation seems to be invalid or cannot be read. Ignoring." << endl;			
 		} else {
-			shots = Utils::normalizePairs(Utils::parseCSV(inputCSV),-1);
+			/* The method requires that '0' be the first frame of the shot segmentation. This enforces it! */
+			int displacement = shots[0].first;
+			shots = Utils::normalizePairs(Utils::parseCSV(inputCSV),-displacement);
 		}		
 	}
 	

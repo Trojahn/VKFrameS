@@ -27,7 +27,7 @@ void Utils::writeOutputFile(string outFile, vector< pair<int,int> > keyframes) {
 }
 
 bool Utils::checkFile(string name) {
-  if(FILE *file = fopen(name.c_str(),"r")) {
+  	if(FILE *file = fopen(name.c_str(),"r")) {
 		fclose(file);
 		return true;
 	}
@@ -67,6 +67,6 @@ vector< pair<int,int> > Utils::parseCSV(string filePath) {
 			temp.clear();
 		}
 	}	
-    file.close();
+    	file.close();
 	return ret;
 }
