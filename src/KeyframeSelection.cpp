@@ -78,12 +78,19 @@ vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
 	vector<Mat> histograms;
 	Mat frame;
 	VideoCapture capture(videoFile);
+	if(!capture.isOpened()) {
+		cout << "ERROR! The video input file could not be read by OpenCV!" << endl;
+		exit(1);
+	}
 	
 	vector< vector<Mat> > ret(std::max(1,(int)this->shots.size()), vector<Mat>());
 
 	
 	for(int i = 0; capture.read(frame); i++) {
 		cvtColor(frame,frame,CV_BGR2HSV);
+		/*
+		Used when there is not a shot segmentation input.
+		*/
 		if(this->shots.size() == 0) {			
 			ret[0].push_back(Utils::extractHistogram(frame));
 		} else {
@@ -97,6 +104,9 @@ vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
 			For every frame, check the corresponding shot.
 			*/
 			for(int s = 0; s < this->shots.size(); s++) {
+				/*
+				The frame is not in any shot!
+				*/
 				if(i < this->shots[s].first) {
 					break;
 				}

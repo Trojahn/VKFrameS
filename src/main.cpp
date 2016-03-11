@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
-	
+
 	vector< pair<int,int> > shots;
 	if(argc == 4) {
 		string inputCSV = string(argv[3]);
@@ -56,11 +56,12 @@ int main(int argc, char* argv[]) {
 			cout << "The videoShotSegmentation seems to be invalid or cannot be read. Ignoring." << endl;			
 		} else {
 			/* The method requires that '0' be the first frame of the shot segmentation. This enforces it! */
+			shots = Utils::parseCSV(inputCSV);
 			int displacement = shots[0].first;
-			shots = Utils::normalizePairs(Utils::parseCSV(inputCSV),-displacement);
+			shots = Utils::normalizePairs(shots,-displacement);
 		}		
 	}
-	
+
 	KeyframeSelection kfs(videoPath, shots, SIMILARITY_THRESHOLD, MIN_SIMILARITY);
 	vector< pair<int,int> > keyframes = Utils::normalizePairs(kfs.getKeyFrames(),1);
 	
