@@ -7,16 +7,20 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <mutex>
 
 using namespace std;
 using namespace cv;
 
 class Utils {
+	private:
+		static std::mutex mutex;
 	public:
-		static Mat extractHistogram(Mat frame);
+		static void extractHistogram(Mat frame, int fNumber, vector< pair<int, Mat> > &histograms);
 		static void writeOutputFile(string outFile, vector< pair<int,int> > keyframes);
 		static bool checkFile(string name);
 		static bool checkOutputFile(string name);
 		static vector< pair<int,int> > parseCSV(string filePath);
 		static vector< pair<int,int> > normalizePairs(vector< pair<int,int> > pairs, int val);
+		static bool pairCompare(const pair<int, Mat> &fElem, const pair<int, Mat> &sElem);
 };

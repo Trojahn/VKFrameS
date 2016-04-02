@@ -1,20 +1,19 @@
-CC = g++ -std=c++11
-UTILSHPP = src/Utils.hpp
-UTILSCPP = src/Utils.cpp
-KFHPP = src/ShotSegmentation.hpp
-KFCPP = src/ShotSegmentation.cpp
-LIBS = `pkg-config --libs --cflags opencv`
+CPPFLAGS := -O2 -g -std=c++11 -pthread -Wl,--no-as-needed
+LDLIBS := `pkg-config --libs --cflags opencv`
+OBJS = Utils.o KeyframeSelection.o
+PROG = VKFrameS
+CXX = g++
 
-all: VKFrameS
+all: $(PROG)
 
-Utils.o: $(UTILSHPP) $(UTILSCPP)
-	@$(CC) -o src/$@ -c $(UTILSCPP)
+$(PROG): $(OBJS)
+	$(CXX) $(CPPFLAGS) $(OBJS) src/main.cpp -o $@ $(LDLIBS)
+
+Utils.o: src/Utils.cpp src/Utils.hpp
+	$(CXX) $(CPPFLAGS) -c src/Utils.cpp -o $@
 	
-KeyframeSelection.o: $(KFHPP) $(KFCPP)
-	@$(CC) -o src/$@ -c $(KFHPP)
-
-VKFrameS: src/Utils.o src/KeyframeSelection.o src/main.cpp
-	@$(CC) src/main.cpp src/Utils.o src/KeyframeSelection.o -o VKFrameS $(LIBS)
+KeyframeSelection.o: src/KeyframeSelection.cpp src/KeyframeSelection.hpp
+	$(CXX) $(CPPFLAGS) -c src/KeyframeSelection.cpp -o $@
 
 clean:
-	@rm -f VKFrameS src/*.o
+	@rm -f $(PROG) *.o

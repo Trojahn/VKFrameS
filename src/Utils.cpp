@@ -1,6 +1,15 @@
 #include "Utils.hpp"
 
-Mat Utils::extractHistogram(Mat frame){
+std::mutex Utils::mutex;
+
+bool Utils::pairCompare(const pair<int, Mat> &fElem, const pair<int, Mat> &sElem) {
+	return fElem.first < sElem.first;
+}
+
+
+void Utils::extractHistogram(Mat frame, int fNumber, vector< pair<int, Mat> > &histograms){
+	cvtColor(frame,frame,CV_BGR2HSV);
+	
 	float Hsize[] = {0,180};
 	float Ssize[] = {0,256};
 	float Vsize[] = {0,256};
@@ -13,9 +22,12 @@ Mat Utils::extractHistogram(Mat frame){
 	Mat histogram;
 
 	calcHist(&frame,1,channels,Mat(),histogram,3,histogramBins,space);
-	histogram = histogram / cv::sum(histogram)[0];
-
-	return histogram;
+	histogram = histogram / cv::sum(histogram)[0];	
+	frame.release();
+	
+	Utils::mutex.lock();
+	histograms.push_back(make_pair(fNumber,histogram));
+	Utils::mutex.unlock();
 }
 
 void Utils::writeOutputFile(string outFile, vector< pair<int,int> > keyframes) {

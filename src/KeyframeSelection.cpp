@@ -6,9 +6,10 @@ KeyframeSelection::KeyframeSelection(string videoFile, vector< pair<int,int> > s
 	this->shots = shots;
 	this->similarityThreshold = similarityThreshold;
 	this->minSimilarity = minSimilarity;
+	this->nThreads = thread::hardware_concurrency();
 }
 
-vector<int> KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms) {
+void KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms, vector<int> &keyframes) {
 	vector<int> similar(histograms.size(),0);
 	
 	/*
@@ -23,13 +24,13 @@ vector<int> KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms) {
 		}
 	}
 	
-	vector<int> keyframes;
+	vector<int> kf;
 	
 	while(true) {
 		vector<int>::iterator maxVal = max_element(similar.begin(), similar.end());
 		int maxIndex = std::distance(similar.begin(), maxVal);
 		
-		if(*maxVal < histograms.size() * this->minSimilarity && keyframes.size() > 0) {
+		if(*maxVal < histograms.size() * this->minSimilarity && kf.size() > 0) {
 			break;
 		}
 		
@@ -37,25 +38,39 @@ vector<int> KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms) {
 		similar[maxIndex] = 0;
 		
 		bool aux = true;
-		for(int i = 0; i < keyframes.size(); i++) {
-			if(compareHistograms(candidate,histograms[keyframes[i]]) >= this->similarityThreshold) {
+		for(int i = 0; i < kf.size(); i++) {
+			if(compareHistograms(candidate,histograms[kf[i]]) >= this->similarityThreshold) {
 				aux = false;
 			}
 		}
 		if(aux) {
-			keyframes.push_back(maxIndex);
+			kf.push_back(maxIndex);
 		}		
 	}
 	
-	return keyframes;	
+	keyframes = kf;
 }
 
 vector< pair<int,int> > KeyframeSelection::getKeyFrames() {
 	vector< vector<Mat> > histograms = this->extractVideoHistograms();
-	vector< vector<int> > keyframes;
+	vector< vector<int> > keyframes(histograms.size());
+	
+	vector<thread> pool;	
 	for(int i = 0; i < histograms.size(); i++) {
-		keyframes.push_back(extractKeyFrameShot(histograms[i]));
+		if(pool.size() >= this->nThreads) {
+			for(int i = 0 ; i < pool.size(); i++) {
+				pool[i].join();
+			}
+			pool.clear();
+		}
+		pool.push_back(thread(&KeyframeSelection::extractKeyFrameShot, this, histograms[i], std::ref(keyframes[i])));
+	}	
+	for(int i = 0 ; i < pool.size(); i++) {
+		pool[i].join();
 	}
+	pool.clear();
+	
+	
 	vector< pair<int,int> > ret;	
 
 	for(int i = 0; i < keyframes.size(); i++) {
@@ -75,7 +90,6 @@ double KeyframeSelection::compareHistograms(Mat histogram1, Mat histogram2) {
 }
 
 vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
-	vector<Mat> histograms;
 	Mat frame;
 	VideoCapture capture(videoFile);
 	if(!capture.isOpened()) {
@@ -83,40 +97,64 @@ vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
 		exit(1);
 	}
 	
-	vector< vector<Mat> > ret(std::max(1,(int)this->shots.size()), vector<Mat>());
-
+	vector<thread> pool;	
+	vector< pair<int,Mat> > tempHist;
 	
 	for(int i = 0; capture.read(frame); i++) {
-		cvtColor(frame,frame,CV_BGR2HSV);
-		/*
-		Used when there is not a shot segmentation input.
-		*/
-		if(this->shots.size() == 0) {			
-			ret[0].push_back(Utils::extractHistogram(frame));
+		if(this->shots.size() == 0) {
+			if(pool.size() >= this->nThreads) {	
+				for(int i = 0 ; i < pool.size(); i++) {
+					pool[i].join();
+				}
+				pool.clear();
+			} 
+			Mat t = Mat();
+			frame.copyTo(t);
+			pool.push_back(thread(&Utils::extractHistogram, t, i, std::ref(tempHist)));
 		} else {
-			/*
-			If there are frames after the last shots, ignore then...
-			*/
 			if(i >= this->shots[this->shots.size()-1].second){
 				break;
-			}			
-			/*
-			For every frame, check the corresponding shot.
-			*/
+			}
 			for(int s = 0; s < this->shots.size(); s++) {
-				/*
-				The frame is not in any shot!
-				*/
 				if(i < this->shots[s].first) {
 					break;
 				}
 				if(this->shots[s].first <= i && i <= this->shots[s].second) {
-					ret[s].push_back(Utils::extractHistogram(frame));
+					if(pool.size() >= this->nThreads) {
+						for(int i = 0 ; i < pool.size(); i++) {
+							pool[i].join();
+						}
+						pool.clear();
+					}	
+					Mat t = Mat();
+					frame.copyTo(t);			
+					pool.push_back(thread(&Utils::extractHistogram, t, i, std::ref(tempHist)));
 				}
 			}
 		}		
 	}
-	frame.release();
-	capture.release();
+	for(int i = 0 ; i < pool.size(); i++) {
+		pool[i].join();
+	}
+	
+	std::sort(tempHist.begin(), tempHist.end(), Utils::pairCompare);
+	vector< vector<Mat> > ret(std::max(1,(int)this->shots.size()), vector<Mat>());
+	
+	if(this->shots.size() == 0) {
+		for(pair<int, Mat> p : tempHist) {
+			ret[0].push_back(p.second);	
+		}
+	} else {
+		for(pair<int, Mat> p : tempHist) {
+			for(int s = 0; s < this->shots.size(); s++) {
+				if(this->shots[s].first <= p.first && p.first <= this->shots[s].second) {
+					ret[s].push_back(p.second);
+					break;
+				}
+			}
+		}
+	}
+	
+	
 	return ret;
 }

@@ -7,6 +7,7 @@
 #include <iterator>
 #include <unistd.h>
 #include <algorithm>
+#include <thread>
 
 using namespace std;
 using namespace cv;
@@ -17,9 +18,10 @@ class KeyframeSelection {
 		vector< pair<int,int> > shots;
 		double similarityThreshold;
 		double minSimilarity;
+		int nThreads;
 		vector< vector<Mat> > extractVideoHistograms();
 		double compareHistograms(Mat histogram1, Mat histogram2);
-		vector<int> extractKeyFrameShot(vector<Mat> histograms);
+		void extractKeyFrameShot(vector<Mat> histograms, vector<int> &keyframes);
 		
 	public:
 		KeyframeSelection(string videoFile, vector< pair<int,int> > shots, double similarityThreshold, double minSimilarity);
