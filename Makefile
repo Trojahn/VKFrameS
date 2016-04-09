@@ -1,4 +1,4 @@
-CPPFLAGS := -O2 -g -std=c++11 -pthread -Wl,--no-as-needed
+CPPFLAGS := -O2 -std=c++11 -pthread -Wl,--no-as-needed
 LDLIBS := `pkg-config --libs --cflags opencv`
 OBJS = Utils.o KeyframeSelection.o
 PROG = VKFrameS

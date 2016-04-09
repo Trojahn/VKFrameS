@@ -19,11 +19,13 @@ class KeyframeSelection {
 		double similarityThreshold;
 		double minSimilarity;
 		int nThreads;
+		int nKeyframes;
+		
 		vector< vector<Mat> > extractVideoHistograms();
 		double compareHistograms(Mat histogram1, Mat histogram2);
 		void extractKeyFrameShot(vector<Mat> histograms, vector<int> &keyframes);
 		
 	public:
-		KeyframeSelection(string videoFile, vector< pair<int,int> > shots, double similarityThreshold, double minSimilarity);
+		KeyframeSelection(string videoFile, vector< pair<int,int> > shots, double similarityThreshold, double minSimilarity, int nKeyframes);
 		vector< pair<int,int> > getKeyFrames();
 };

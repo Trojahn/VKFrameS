@@ -1,17 +1,18 @@
 #include "KeyframeSelection.hpp"
 #include "Utils.hpp"
 
-KeyframeSelection::KeyframeSelection(string videoFile, vector< pair<int,int> > shots, double similarityThreshold, double minSimilarity) {
+KeyframeSelection::KeyframeSelection(string videoFile, vector< pair<int,int> > shots, double similarityThreshold, double minSimilarity, int nKeyframes) {
 	this->videoFile = videoFile;
 	this->shots = shots;
 	this->similarityThreshold = similarityThreshold;
 	this->minSimilarity = minSimilarity;
 	this->nThreads = thread::hardware_concurrency();
+	this->nKeyframes = nKeyframes;
 }
 
 void KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms, vector<int> &keyframes) {
 	vector<int> similar(histograms.size(),0);
-	
+	int nKf = this->nKeyframes;
 	/*
 		Calculate the histograms' similarity among the frames.
 	*/
@@ -24,15 +25,24 @@ void KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms, vector<int> 
 		}
 	}
 	
+	if(nKf > similar.size()) {
+		cout << "Warning! You have requested a higher number of keyframes than the video segment can offer... Ignoring that restriction for this particular segment" << endl;
+		nKf = 0;
+	}
+	
 	vector<int> kf;
 	
 	while(true) {
 		vector<int>::iterator maxVal = max_element(similar.begin(), similar.end());
 		int maxIndex = std::distance(similar.begin(), maxVal);
 		
-		if(*maxVal < histograms.size() * this->minSimilarity && kf.size() > 0) {
+		if(nKf > 0 && kf.size() >= nKf) {
 			break;
-		}
+		} else {
+			if(*maxVal < histograms.size() * this->minSimilarity && kf.size() > 0) {
+				break;
+			}
+		}	
 		
 		Mat candidate = histograms[maxIndex];
 		similar[maxIndex] = 0;

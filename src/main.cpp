@@ -17,9 +17,9 @@ double SIMILARITY_THRESHOLD = 0.95;
 double MIN_SIMILARITY = 0.2;
 
 int main(int argc, char* argv[]) {
-	if(argc < 3 || argc > 4) {
+	if(argc < 4 || argc > 5) {
 		cout << "Incorrect parameter count." << endl;
-		cout << "Please, use './VKFrames <videoFilePath> <outputFilePath.csv> [<videoShotSegmentation.csv>]'" << endl;
+		cout << "Please, use './VKFrames <videoFilePath> <nKeyframes> <outputFilePath.csv> [<videoShotSegmentation.csv>]'" << endl;
 		return 1;
 	}	
 	
@@ -29,7 +29,9 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	
-	string outputPath = string(argv[2]);
+	int nKeyframes = atoi(argv[2]);
+	
+	string outputPath = string(argv[3]);
 	if(Utils::checkFile(outputPath)) {		
 		while(true) {
 			string in;
@@ -50,8 +52,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	vector< pair<int,int> > shots;
-	if(argc == 4) {
-		string inputCSV = string(argv[3]);
+	if(argc == 5) {
+		string inputCSV = string(argv[4]);
 		if(!Utils::checkFile(inputCSV)) {
 			cout << "The videoShotSegmentation seems to be invalid or cannot be read. Ignoring." << endl;			
 		} else {
@@ -62,7 +64,7 @@ int main(int argc, char* argv[]) {
 		}		
 	}
 
-	KeyframeSelection kfs(videoPath, shots, SIMILARITY_THRESHOLD, MIN_SIMILARITY);
+	KeyframeSelection kfs(videoPath, shots, SIMILARITY_THRESHOLD, MIN_SIMILARITY, nKeyframes);
 	vector< pair<int,int> > keyframes = Utils::normalizePairs(kfs.getKeyFrames(),1);
 	
 	Utils::writeOutputFile(outputPath,keyframes);	
