@@ -7,19 +7,19 @@ VKFrameS (**V**ideo **K**ey**frames** **S**elector) is a video shot keyframes se
 *   An appropriate set of CODECs
 
 # Arguments
-1.  The video which keyframes will be selected.
+1.  The video from which the keyframes will be selected.
 2.	The desired number of keyframes for each video shot/segment. 0 for *auto*.
-3.  The CSV file ouput path which describe the selected keyframes.
+3.  The CSV ouput file which describe the selected keyframes.
 4.  (Optional) A CSV file with video shot segmentation.
 
 # Output
-VKFrameS will save its output into a CSV file (the third provided argument). In that file, each line corresponds to a selected keyframe. 
+VKFrameS will save its output into a CSV file (the third provided argument). In the output file, each line corresponds to a selected keyframe. 
 The first value (before the comma) is the corresponding shot number. The second value (after the comma) is the global frame number of the keyframe. Both the first frame and shot are represented as '1'.
 
-VKFrameS can select multiple keyframes for each shot. In this case, the printing order reflects the "*quality*" of each keyframe: the first shot keyframe is "*better*" than the second keyfame, and so on. VKFrames will always select at least one keyframe for each non-empty shot.
+VKFrameS may select multiple keyframes for each shot. In this case, the printing order reflects the "*quality*" of each keyframe: the first shot keyframe is "*better*" than the second keyfame, and so on. VKFrames will always select at least one keyframe for each non-empty shot.
 
-If it is specified a particular number of keyframes (the second argument), the VKFrameS will do its best to return the specified number of keyframes for each shot/segment. Please do note that if the number of desired keyframes is larger than the shot/segmente length, 
-the algorithm will fallback to the *auto* behaviour (variable keyframe number, at least one for each shot/segment) for THAT particular shot/segment (a warning will alert yout of this).
+If it is specified a particular number of keyframes (a non zero value in the second argument), the VKFrameS will do its best to return the specified number of keyframes for each shot/segment. Please do note that if the number of desired keyframes is larger than the shot/segmente length, 
+the program will fallback to the *auto* behaviour (variable keyframe number, at least one for each shot/segment) for THAT particular shot/segment (a warning will alert you of this).
 
 Has it is not provided a shot segmentation (the last optional parameter), all detected keyframes will be presented as **1,N**, where **N** is the frame number.
 
