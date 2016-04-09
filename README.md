@@ -2,28 +2,30 @@
 VKFrameS (**V**ideo **K**ey**frames** **S**elector) is a video shot keyframes selector which aims to provide a set of unique keyframes for a given shot-segmented video. 
 
 # Requirements
-*   A C++ compiler, like g++
+*   A C++11 compiler, like g++
 *   A functional OpenCV installation (version 2.4.x and above)
 *   An appropriate set of CODECs
 
-# Parameters
+# Arguments
 1.  The video which keyframes will be selected.
-2.  A file path to the CSV output which describe the selected keyframes.
-3.  (Optional) A CSV file with video shot segmentation.
+2.	The desired number of keyframes for each video shot/segment. 0 for *auto*.
+3.  The CSV file ouput path which describe the selected keyframes.
+4.  (Optional) A CSV file with video shot segmentation.
 
 # Output
-VKFrameS will save it's output into a CSV file (the second provided parameter). In this file, each line corresponds to a selected keyframe. 
-The first value (before the comma) is the corresponding shot number. The second value (after the comma) is the global frame number of the keyframe. The first frame and the first shot are represented as '1'.
+VKFrameS will save its output into a CSV file (the third provided argument). In that file, each line corresponds to a selected keyframe. 
+The first value (before the comma) is the corresponding shot number. The second value (after the comma) is the global frame number of the keyframe. Both the first frame and shot are represented as '1'.
 
-VKFrameS can select multiple keyframes for each shot. In this case, the printing order reflects the "*quality*" of each keyframe: the first shot' keyframe is "*better*" than the second keyfame, and so on.
+VKFrameS can select multiple keyframes for each shot. In this case, the printing order reflects the "*quality*" of each keyframe: the first shot keyframe is "*better*" than the second keyfame, and so on. VKFrames will always select at least one keyframe for each non-empty shot.
 
-VKFrames will always select at least one keyframe for each non-empty shot.
+If it is specified a particular number of keyframes (the second argument), the VKFrameS will do its best to return the specified number of keyframes for each shot/segment. Please do note that if the number of desired keyframes is larger than the shot/segmente length, 
+the algorithm will fallback to the *auto* behaviour (variable keyframe number, at least one for each shot/segment) for THAT particular shot/segment (a warning will alert yout of this).
 
-If there is not a shot segmentation (the third parameter), all detected keyframes will be presented as **1,N**, where **N** is the frame number.
+Has it is not provided a shot segmentation (the last optional parameter), all detected keyframes will be presented as **1,N**, where **N** is the frame number.
 
 # Examples
-#### Using a shot.csv file with the 'video.avi' shot' segmentation. 
-		$ ./VKFrameS video.avi output.csv shots.csv
+#### Using a shot.csv file with the 'video.avi' shot segmentation. 
+		$ ./VKFrameS video.avi 0 output.csv shots.csv
 		$ cat shots.csv
 			1,240
 			241,260
@@ -42,9 +44,26 @@ If there is not a shot segmentation (the third parameter), all detected keyframe
 			6,440
 			6,599
 			6,382
+			
+#### Using a shot.csv file with the 'video.avi' shot segmentation. Selecting only one keyframe. 
+		$ ./VKFrameS video.avi 1 output.csv shots.csv
+		$ cat shots.csv
+			1,240
+			241,260
+			272,290
+			291,313
+			320,325
+			326,700
+		$ cat output.csv
+			1,123
+			2,258
+			3,288
+			4,296
+			5,321
+			6,440
 		
 #### Without the shot segmentation
-		$ ./VKFrameS video.avi output.csv
+		$ ./VKFrameS video.avi 0 output.csv
 		$ cat output.csv
 			1,76
 			1,115
