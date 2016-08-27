@@ -3,7 +3,7 @@ VKFrameS (**V**ideo **K**ey**frames** **S**elector) is a video shot keyframes se
 
 # Requirements
 *   A C++11 compiler, like g++
-*   A functional OpenCV installation (version 2.4.x and above)
+*   A functional OpenCV installation (2.4.x and 3.1 compatible)
 *   An appropriate set of CODECs
 
 # Arguments
