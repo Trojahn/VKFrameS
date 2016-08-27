@@ -35,14 +35,12 @@ int main(int argc, char* argv[]) {
 	if(Utils::checkFile(outputPath)) {		
 		while(true) {
 			string in;
-			cout << "File '" << outputPath << "' already exists. Overwrite ? [y/N]" << endl;
+			cout << "File '" << outputPath << "' already exists. Overwrite [y/N]? ";
 			getline(std::cin,in);
 			if(in == "Y" || in == "y") {
 				break;
 			}
-			if(in == "" || in == "N" || in == "n") {
-				return 1;
-			}
+			return 0;
 		}
 	} else {
 		if(!Utils::checkOutputFile(outputPath)) {
@@ -63,7 +61,7 @@ int main(int argc, char* argv[]) {
 			shots = Utils::normalizePairs(shots,-displacement);
 		}		
 	}
-
+	
 	KeyframeSelection kfs(videoPath, shots, SIMILARITY_THRESHOLD, MIN_SIMILARITY, nKeyframes);
 	vector< pair<int,int> > keyframes = Utils::normalizePairs(kfs.getKeyFrames(),1);
 	

@@ -11,6 +11,7 @@ KeyframeSelection::KeyframeSelection(string videoFile, vector< pair<int,int> > s
 }
 
 void KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms, vector<int> &keyframes) {
+	
 	vector<int> similar(histograms.size(),0);
 	int nKf = this->nKeyframes;
 	/*
@@ -31,7 +32,6 @@ void KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms, vector<int> 
 	}
 	
 	vector<int> kf;
-	
 	while(true) {
 		vector<int>::iterator maxVal = max_element(similar.begin(), similar.end());
 		int maxIndex = std::distance(similar.begin(), maxVal);
@@ -57,7 +57,6 @@ void KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms, vector<int> 
 			kf.push_back(maxIndex);
 		}		
 	}
-	
 	keyframes = kf;
 }
 
@@ -68,15 +67,16 @@ vector< pair<int,int> > KeyframeSelection::getKeyFrames() {
 	vector<thread> pool;	
 	for(int i = 0; i < histograms.size(); i++) {
 		if(pool.size() >= this->nThreads) {
-			for(int i = 0 ; i < pool.size(); i++) {
-				pool[i].join();
+			for(auto &t : pool) {
+				t.join();
 			}
 			pool.clear();
 		}
 		pool.push_back(thread(&KeyframeSelection::extractKeyFrameShot, this, histograms[i], std::ref(keyframes[i])));
 	}	
-	for(int i = 0 ; i < pool.size(); i++) {
-		pool[i].join();
+
+	for(auto &t : pool) {
+		t.join();
 	}
 	pool.clear();
 	
@@ -112,9 +112,9 @@ vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
 	
 	for(int i = 0; capture.read(frame); i++) {
 		if(this->shots.size() == 0) {
-			if(pool.size() >= this->nThreads) {	
-				for(int i = 0 ; i < pool.size(); i++) {
-					pool[i].join();
+			if(pool.size() >= this->nThreads * 10) {	
+				for(auto &t : pool) {
+					t.join();
 				}
 				pool.clear();
 			} 
@@ -130,9 +130,9 @@ vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
 					break;
 				}
 				if(this->shots[s].first <= i && i <= this->shots[s].second) {
-					if(pool.size() >= this->nThreads) {
-						for(int i = 0 ; i < pool.size(); i++) {
-							pool[i].join();
+					if(pool.size() >= this->nThreads * 10) {
+						for(auto &t : pool) {
+							t.join();
 						}
 						pool.clear();
 					}	
@@ -143,8 +143,8 @@ vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
 			}
 		}		
 	}
-	for(int i = 0 ; i < pool.size(); i++) {
-		pool[i].join();
+	for(auto &t : pool) {
+		t.join();
 	}
 	
 	std::sort(tempHist.begin(), tempHist.end(), Utils::pairCompare);
@@ -163,8 +163,15 @@ vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
 				}
 			}
 		}
-	}
+	}	
 	
+	/* Check if any shot does not have at least a single frame... */
+	for(auto &s : ret) {
+		if(s.size() <= 0) {
+			cout << "ERROR: There seems to be a shot without any frame." << endl;
+			exit(1);
+		}
+	}
 	
 	return ret;
 }
