@@ -166,11 +166,15 @@ vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
 	}	
 	
 	/* Check if any shot does not have at least a single frame... */
-	for(auto &s : ret) {
-		if(s.size() <= 0) {
-			cout << "ERROR: There seems to be a shot without any frame." << endl;
-			exit(1);
+	bool check = false;
+	for(int i = 0; i < ret.size(); i++) {
+		if(ret[i].size() <= 0) {
+			cout << "ERROR: The shot " << i << " seems to be empty" << endl;
+			check = true;
 		}
+	}
+	if(check) {
+		exit(1);
 	}
 	
 	return ret;
