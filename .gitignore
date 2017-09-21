@@ -30,3 +30,6 @@ VKFrameS
 
 # Temporary *nix files
 *~
+
+#Temporary files
+*.csv

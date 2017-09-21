@@ -32,17 +32,24 @@ void KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms, vector<int> 
 	}
 	
 	vector<int> kf;
+	int nTries = 0;
+	bool nothingBetter = false;
+
 	while(true) {
 		vector<int>::iterator maxVal = max_element(similar.begin(), similar.end());
 		int maxIndex = std::distance(similar.begin(), maxVal);
-		
-		if(nKf > 0 && kf.size() >= nKf) {
-			break;
-		} else {
-			if(*maxVal < histograms.size() * this->minSimilarity && kf.size() > 0) {
+
+		nTries = nTries + 1;		
+
+		if(nKf > 0) {
+			if(kf.size() >= nKf) {
 				break;
 			}
-		}	
+		} else {
+			if(*maxVal < histograms.size() * this->minSimilarity && kf.size() > 0 ) {
+				break;
+			}
+		}
 		
 		Mat candidate = histograms[maxIndex];
 		similar[maxIndex] = 0;
@@ -53,9 +60,21 @@ void KeyframeSelection::extractKeyFrameShot(vector<Mat> histograms, vector<int> 
 				aux = false;
 			}
 		}
-		if(aux) {
+
+		if(nKf > 0 && nTries >= (similar.size() + kf.size())) {
+			nothingBetter = true;
+			nTries = 0;
+		}	
+
+		if(aux || nothingBetter) {
 			kf.push_back(maxIndex);
-		}		
+			nothingBetter = false;
+		} else {
+			nTries = nTries + 1;
+		}	
+
+
+
 	}
 	keyframes = kf;
 }
