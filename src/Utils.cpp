@@ -70,15 +70,17 @@ vector< pair<int,int> > Utils::parseCSV(string filePath) {
 	
 	if(file.is_open()) {
 		while(getline(file,line)) {
-			istringstream str(line);
-			vector<int> temp;
-			while(getline(str,token,',')) {
-				temp.push_back(atoi(token.c_str()));
+			if(!line.empty()) {
+				istringstream str(line);
+				vector<int> temp;
+				while(getline(str,token,',')) {
+					temp.push_back(atoi(token.c_str()));
+				}
+				ret.push_back(make_pair(temp[0],temp[1]));
+				temp.clear();
 			}
-			ret.push_back(make_pair(temp[0],temp[1]));
-			temp.clear();
 		}
 	}	
-    	file.close();
+    file.close();
 	return ret;
 }

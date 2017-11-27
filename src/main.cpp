@@ -30,7 +30,6 @@ int main(int argc, char* argv[]) {
 	}
 	
 	int nKeyframes = atoi(argv[2]);
-	
 	string outputPath = string(argv[3]);
 	if(Utils::checkFile(outputPath)) {		
 		while(true) {
@@ -48,7 +47,6 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
-
 	vector< pair<int,int> > shots;
 	if(argc == 5) {
 		string inputCSV = string(argv[4]);
@@ -61,22 +59,22 @@ int main(int argc, char* argv[]) {
 			shots = Utils::normalizePairs(shots,-displacement);
 		}		
 	}
-	
 	bool check = false;
 	for(int i = 0; i < shots.size(); i++) {
-		if(shots[i].second <= shots[i].first) {
-			cout << "ERROR: The " << (i+1) << " shot seems to be empty (" << shots[i].first << "," << shots[i].second << "). " << endl;
+		if(shots[i].second == shots[i].first) {
+			cout << "WARNING: The " << (i+1) << " contains only a single frame (" << shots[i].first << "," << shots[i].second << "). " << endl;
+		}
+		if(shots[i].second < shots[i].first) {
+			cout << "ERROR: The " << (i+1) << " shot seems broken (" << shots[i].first << "," << shots[i].second << "). " << endl;
 			check = true;
 		}
 	}
 	if(check) {
 		exit(1);
 	}
-	
-	
+
 	KeyframeSelection kfs(videoPath, shots, SIMILARITY_THRESHOLD, MIN_SIMILARITY, nKeyframes);
 	vector< pair<int,int> > keyframes = Utils::normalizePairs(kfs.getKeyFrames(),1);
-	
 	Utils::writeOutputFile(outputPath,keyframes);	
 	return 0;
 }
