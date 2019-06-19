@@ -8,7 +8,7 @@ bool Utils::pairCompare(const pair<int, Mat> &fElem, const pair<int, Mat> &sElem
 
 
 void Utils::extractHistogram(Mat frame, int fNumber, vector< pair<int, Mat> > &histograms){
-	cvtColor(frame,frame,CV_BGR2HSV);
+	cvtColor(frame,frame,COLOR_BGR2HSV);
 	
 	float Hsize[] = {0,180};
 	float Ssize[] = {0,256};

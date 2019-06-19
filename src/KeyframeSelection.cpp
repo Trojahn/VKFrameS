@@ -115,7 +115,7 @@ vector< pair<int,int> > KeyframeSelection::getKeyFrames() {
 }
 
 double KeyframeSelection::compareHistograms(Mat histogram1, Mat histogram2) {
-	return compareHist(histogram1,histogram2,CV_COMP_INTERSECT);
+	return compareHist(histogram1,histogram2,HISTCMP_INTERSECT);
 }
 
 vector< vector<Mat> > KeyframeSelection::extractVideoHistograms() {
